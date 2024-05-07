@@ -5,12 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python Debugger: Main",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "app/__main__.py",
+            "console": "integratedTerminal",
+            "args": "${workspaceFolder}/samples"
+        },
+        {
             "name": "Python: Current File",
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
-        },
-
+        }
     ]
 }
