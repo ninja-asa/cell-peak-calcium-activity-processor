@@ -26,6 +26,9 @@ class AppConfig:
         self._ignore_peaks_before = IGNORE_PEAKS_BEFORE
         self._output_directory = OUTPUT_DIRECTORY
 
+    def __repr__(self) -> str:
+        return f"AppConfig(log_level={self.log_level}, threshold={self.threshold}, n_neighbors={self.n_neighbors}, time_unit={self.time_unit}, ignore_peaks_before_criteria={self.ignore_peaks_before_criteria}, ignore_peaks_before={self.ignore_peaks_before}, output_directory={self.output_directory})"
+
     @property
     def log_level(self) -> str:
         return self._log_level
