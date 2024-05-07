@@ -1,4 +1,8 @@
 # cell-peak-calcium-activity-process
+[![Run Tests](https://github.com/ninja-asa/cell-peak-calcium-activity-processor/actions/workflows/unit-tests.yml/badge.svg?event=pull_request)](https://github.com/ninja-asa/cell-peak-calcium-activity-processor/actions/workflows/unit-tests.yml)
+![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ninja-asa/7320bcb9e0428ed09bd965d928767f82/raw/cc121fdd7d0838075814e6735d8599829c01be01/cell-peak-calcium-activity-processor-coverage-badge.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+ 
 
 The goal with this repository is to support a scientific workflow to:
 
