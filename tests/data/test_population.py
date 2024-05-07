@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from app.data.cell_population_activity import CellPopulationActivity
+from app.data.population import CellPopulationActivity
 
 @pytest.fixture(scope="function")
 def test_data():
@@ -21,20 +21,17 @@ def test_data():
 
 def test_post_init_cell_population_activity():
     cell_population_activity = CellPopulationActivity(
-        peak_threshold=0.5,
         ignore_peaks_before_criteria="SAMPLES",
         ignore_peaks_before=11,
         time_unit="s"
     )
 
-    assert cell_population_activity.peak_threshold == 0.5
     assert cell_population_activity.ignore_peaks_before_criteria == "SAMPLES"
     assert cell_population_activity.ignore_peaks_before == 11
     assert cell_population_activity.time_unit == "s"
 
     with pytest.raises(ValueError):
         CellPopulationActivity(
-            peak_threshold=0.5,
             ignore_peaks_before_criteria="INVALID",
             ignore_peaks_before=11,
             time_unit="s"
@@ -42,7 +39,6 @@ def test_post_init_cell_population_activity():
     
     with pytest.raises(ValueError):
         CellPopulationActivity(
-            peak_threshold=0.5,
             ignore_peaks_before_criteria="samples",
             ignore_peaks_before=11,
             time_unit="min"
@@ -223,7 +219,7 @@ def test_drop_row_before_sample_inplace(test_data_with_datetime_index):
     assert test_data_with_datetime_index.index[2] == pd.Timestamp("1970-01-01 00:00:03")
     assert test_data_with_datetime_index.index[3] == pd.Timestamp("1970-01-01 00:00:04")
     
-@patch("app.data.cell_population_activity.CellPopulationActivity.drop_rows_before_time")
+@patch("app.data.population.CellPopulationActivity.drop_rows_before_time")
 def test_drop_rows_by_time(mock_drop_row_before_time, test_data_with_datetime_index):
     # confirm the function `drop_rows_by_time` is called
     
@@ -242,7 +238,7 @@ def test_drop_rows_by_time(mock_drop_row_before_time, test_data_with_datetime_in
         test_data_with_datetime_index, threshold_time=2, inplace=True
     )
 
-@patch("app.data.cell_population_activity.CellPopulationActivity.drop_rows_before_sample")
+@patch("app.data.population.CellPopulationActivity.drop_rows_before_sample")
 def test_drop_rows_by_sample(mock_drop_row_before_sample, test_data_with_datetime_index):
     # confirm the function `drop_rows_by_sample` is called
     
@@ -263,7 +259,6 @@ def test_drop_rows_by_sample(mock_drop_row_before_sample, test_data_with_datetim
 
 def test_read_df_cell_population_activity(test_data):
     cell_population_activity = CellPopulationActivity(
-        peak_threshold=0.5,
         ignore_peaks_before_criteria="SAMPLES",
         ignore_peaks_before=2,
         time_unit="s"

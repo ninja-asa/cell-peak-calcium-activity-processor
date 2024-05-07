@@ -25,7 +25,8 @@
 				"njpwerner.autodocstring",
 				"janisdd.vscode-edit-csv",
 				"ms-python.python",
-				"patrick91.python-dependencies-vscode"
+				"patrick91.python-dependencies-vscode",
+				"zeshuaro.vscode-python-poetry"
 			]
 		}
 	}

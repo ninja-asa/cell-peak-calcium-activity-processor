@@ -5,7 +5,7 @@ import logging
 
 # load logging level from environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s', level=log_level, handlers=[logging.StreamHandler(), logging.FileHandler(__name__)])
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s', level=log_level, handlers=[logging.StreamHandler(), logging.FileHandler(f"{__name__}.log")])
 
 @dataclass
 class CellPopulationActivity:
@@ -29,12 +29,6 @@ class CellPopulationActivity:
             raise error
         return
         
-    def from_csv(self, path: str) -> None:
-        data = pd.read_csv(path, index_col=None, header=0)
-        # check if any column name contains "time". If so, set it as the index
-        data = self.from_df(data)
-
-    
     def from_df(self,data: pd.DataFrame) -> None:
         """
         Read the data from a pandas DataFrame and performs some data cleaning
@@ -158,7 +152,3 @@ class CellPopulationActivity:
         data.set_index(time_column[0], inplace=True)
         data.index = pd.to_datetime(data.index, unit=self.time_unit)
 
-    
-    
-    
-    
