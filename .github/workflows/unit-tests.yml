@@ -55,7 +55,7 @@ jobs:
         # The ID of the gist to use
         gistID: 7320bcb9e0428ed09bd965d928767f82
         # The *.json or *.svg filename of the badge data
-        filename: cell-peak-calcium-activity-processor-badge.json
+        filename: cell-pk-ca-activity-processor.json
         # The left text of the badge
         label: Coverage
         # The right text of the badge
