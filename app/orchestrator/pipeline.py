@@ -71,7 +71,6 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False):
             logging.error(e)
     logging.info(f"Processed {len(result)} files")
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})
-        
     if save_to_file:
         logging.info("Writing population data to files")
         write_population_data_to_files(result, all_populations_summary)
@@ -117,7 +116,7 @@ def write_population_data_to_files(result, all_populations_summary):
     for key, value in result.items():
         suffix = "features"
         features_file_path = create_new_file_from_input_filepath(key, suffix)
-        features_file_path = os.path.join(config.output_directory, features_file_path)
+        features_file_path = os.path.join(output_dir, features_file_path)
         write_to_file(value[0], features_file_path)
 
         suffix = "summary"
@@ -125,7 +124,7 @@ def write_population_data_to_files(result, all_populations_summary):
         summary_file_path = os.path.join(output_dir, summary_file_path)
         write_to_file(value[1], summary_file_path)
     populations_output_dir = os.path.join(output_dir, "all_populations_summary.csv")
-    write_to_file(all_populations_summary, populations_output_dir)
+    write_to_file(all_populations_summary.T, populations_output_dir)
     logging.info("Finished writing population data")
     return
 
