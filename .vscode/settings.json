@@ -1,0 +1,11 @@
+{
+    "autoDocstring.docstringFormat": "google",
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.addImport.heuristics": true,
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "autoDocstring.startOnNewLine": true,
+
+}

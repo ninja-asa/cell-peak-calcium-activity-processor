@@ -1,0 +1,28 @@
+{
+	"Module Docstring": {
+		"prefix": "this module",
+		"body": [
+			"$BLOCK_COMMENT_START",
+			"This module $TM_FILENAME_BASE implements $1",
+			"",
+			"Typical usage example:",
+			"",
+			"$2",
+			"$BLOCK_COMMENT_END"
+		],
+		"description": "Initializes a module docstring"
+	},
+	"Class Docstring": {
+		"prefix": "this class",
+		"body": [
+			"$BLOCK_COMMENT_START",
+			"This Class $1",
+			"",
+			"Attributes:",
+			"	$2: $3",
+			"$BLOCK_COMMENT_END"
+		],
+		"description": "Initializes a class docstring"
+	},
+
+}
