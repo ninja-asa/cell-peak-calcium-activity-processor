@@ -155,7 +155,13 @@ class ActivityProcessor:
         # update the index to include "mean " before to each index value
         mean_features.index = mean_features.index.map(lambda x: 'mean ' + x)
 
-        
+        # convert to boolean columns whose name contains "is", for example "is_active"
+
+        #convert column to boolean
+        candidate_boolean_features = [col for col in cell_population_activity_features.columns if "is" in col]
+        for column in candidate_boolean_features:
+            cell_population_activity_features[column] = cell_population_activity_features[column].astype(bool)
+
         # find boolean columns and count total number of rows, total number of true and % of true
         boolean_features = cell_population_activity_features.select_dtypes(include=[bool])
         nr_true = boolean_features.sum()
@@ -165,6 +171,6 @@ class ActivityProcessor:
         percent_true.index = percent_true.index.map(lambda x: 'percentage_true ' + x)
         
         # combine all features
-        summary = pd.concat([mean_features, nr_true, percent_true, total_instances], axis=0)
+        summary = pd.concat([mean_features, nr_true, percent_true, total_instances], axis=0).transpose()
         return summary
         

@@ -69,7 +69,7 @@ class CellActivity:
             "value_at_first_peak": self.value_at_first_peak,
             "time_to_max_peak": self._get_second_of_timestamp(self.time_to_max_peak),
             "value_at_max_peak": self.value_at_max_peak,
-            "is_active": int(self.is_active),
+            "is_active": bool(self.is_active),
             "nr_peaks": self.nr_peaks
         }
 

@@ -49,7 +49,7 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     return cell_population_activity_features, summary_population
 
 
-def process_files_in_bulk(file_paths: list, save_to_file: bool = False) -> dict:
+def process_files_in_bulk(file_paths: list, save_to_file: bool = False):
     """
     Process a list of files in bulk
 
@@ -67,16 +67,17 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False) -> dict:
             result[file_path] = (cell_population_activity_features, summary_population)
         except Exception as e:
             logging.error(e)
-
+    logging.info(f"Processed {len(result)} files")
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})
         
     if save_to_file:
+        logging.info("Writing population data to files")
         write_population_data_to_files(result, all_populations_summary)
 
-    return result
+    return result, all_populations_summary
 
 
-def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False) -> dict:
+def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False):
     """
     Process a list of dataframes in bulk
 
@@ -100,7 +101,7 @@ def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False) -> 
     if save_to_file:
         write_population_data_to_files(result, all_populations_summary)
 
-    return result
+    return result, all_populations_summary
 
 def write_population_data_to_files(result, all_populations_summary):
     # check if app config directory exists
@@ -110,6 +111,7 @@ def write_population_data_to_files(result, all_populations_summary):
     output_dir = os.path.join(config.output_directory, datetime_now)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+    logging.info(f"Writing population data to {output_dir}")
     for key, value in result.items():
         suffix = "features"
         features_file_path = create_new_file_from_input_filepath(key, suffix)
@@ -122,6 +124,7 @@ def write_population_data_to_files(result, all_populations_summary):
         write_to_file(value[1], summary_file_path)
     populations_output_dir = os.path.join(output_dir, "all_populations_summary.csv")
     write_to_file(all_populations_summary, populations_output_dir)
+    logging.info("Finished writing population data")
     return
 
 def main():
@@ -132,8 +135,9 @@ def main():
     logging.info(f"Found {len(file_paths)} files in the samples directory")
 
     # process the files in bulk
-    result = process_files_in_bulk(file_paths, save_to_file=True)
+    result, all_populations_summary = process_files_in_bulk(file_paths, save_to_file=True)
     logging.info(f"Processed {len(result)} files")
+    return result, all_populations_summary
 
 if __name__ == "__main__":
     main()

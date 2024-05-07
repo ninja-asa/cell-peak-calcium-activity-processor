@@ -81,7 +81,8 @@ def find_and_set_header(df: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: The DataFrame with the header set
     """
     # find index of row with 2 strings
-    header_index = df.applymap(lambda x: isinstance(x, str)).sum(axis=1).idxmax()
+    
+    header_index = df.map(lambda x: isinstance(x, str)).sum(axis=1).idxmax()
     # set the header
     df.columns = df.loc[header_index]
     # drop the header row
@@ -119,6 +120,7 @@ def write_to_file(df: pd.DataFrame, file_path: str) -> None:
         e = ValueError(f"File format not supported: {file_path}")
         logging.error(e)
         raise e
+    logging.info(f"Data written to {file_path}")
     return
 
 def get_directory_of_filepath(file_path: str) -> str:

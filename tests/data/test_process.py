@@ -192,7 +192,7 @@ def test_run(test_processor):
     assert pd.isna(result['value_at_first_peak']).all()
     assert pd.isna(result['time_to_max_peak']).all()
     assert pd.isna(result['value_at_max_peak']).all()
-    
+
 def test_summary_population():
     cell_population_activity_features = pd.DataFrame({
         'numeric1': [1, 2, 3],
@@ -201,14 +201,11 @@ def test_summary_population():
         'boolean2': [False, True, True],
     })
     summary = ActivityProcessor.summary_of_population(cell_population_activity_features)
+    summary_T = summary.transpose()
 
-    # assert summary.index.tolist() == [
-    #     'mean numeric1', 'mean numeric2', 'nr_true boolean1', 'nr_true boolean2', 'percentage_true boolean1', 'percentage_true boolean2'
-    # ]
-
-    assert summary["mean numeric1"] == 2
-    assert summary["mean numeric2"] == 5
-    assert summary["nr_true boolean1"] == 2
-    assert summary["nr_true boolean2"] == 2
-    assert summary["percentage_true boolean1"] == pytest.approx(2/3*100)
-    assert summary["percentage_true boolean2"] == pytest.approx(2/3*100)
+    assert summary_T["mean numeric1"] == 2
+    assert summary_T["mean numeric2"] == 5
+    assert summary_T["nr_true boolean1"] == 2
+    assert summary_T["nr_true boolean2"] == 2
+    assert summary_T["percentage_true boolean1"] == pytest.approx(2/3*100)
+    assert summary_T["percentage_true boolean2"] == pytest.approx(2/3*100)
