@@ -2,6 +2,7 @@
 import pandas as pd
 import logging
 import os
+from app.data import population
 from app.data.population import CellPopulationActivity
 from app.data.process import ActivityProcessor
 from app.file.tables import read_from_file, write_to_file, create_new_file_from_input_filepath, get_directory_of_filepath
@@ -70,7 +71,7 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False) -> dict:
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})
         
     if save_to_file:
-        write_population_data_to_files(file_paths, result, all_populations_summary)
+        write_population_data_to_files(result, all_populations_summary)
 
     return result
 
@@ -97,16 +98,18 @@ def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False) -> 
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})
         
     if save_to_file:
-        write_population_data_to_files([f"{idx}.csv" for idx in range(len(dataframes))], 
-                                       result, all_populations_summary)
+        write_population_data_to_files(result, all_populations_summary)
 
     return result
 
-def write_population_data_to_files(file_paths, result, all_populations_summary):
+def write_population_data_to_files(result, all_populations_summary):
     # check if app config directory exists
     if not os.path.exists(config.output_directory):
         os.makedirs(config.output_directory)
-
+    datetime_now = pd.Timestamp.now().strftime("%Y%m%d%H%M%S")
+    output_dir = os.path.join(config.output_directory, datetime_now)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     for key, value in result.items():
         suffix = "features"
         features_file_path = create_new_file_from_input_filepath(key, suffix)
@@ -115,10 +118,10 @@ def write_population_data_to_files(file_paths, result, all_populations_summary):
 
         suffix = "summary"
         summary_file_path = create_new_file_from_input_filepath(key, suffix)
-        summary_file_path = os.path.join(config.output_directory, summary_file_path)
+        summary_file_path = os.path.join(output_dir, summary_file_path)
         write_to_file(value[1], summary_file_path)
-    populations_output_dir = get_directory_of_filepath(file_paths[0])
-    write_to_file(all_populations_summary, f"{populations_output_dir}/all_populations_summary.csv")
+    populations_output_dir = os.path.join(output_dir, "all_populations_summary.csv")
+    write_to_file(all_populations_summary, populations_output_dir)
     return
 
 def main():
