@@ -5,7 +5,7 @@ import logging
 
 # load logging level from environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s', level=log_level, handlers=[logging.StreamHandler(), logging.FileHandler(__name__)])
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s', level=log_level, handlers=[logging.StreamHandler(), logging.FileHandler(f"{__name__}.log")])
 
 @dataclass
 class CellPopulationActivity:
