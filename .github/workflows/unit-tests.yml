@@ -53,7 +53,7 @@ jobs:
         # Your secret with the gist scope
         auth: ${{ secrets.GIST_SECRET }}
         # The ID of the gist to use
-        gistID: 7320bcb9e0428ed09bd965d928767f82
+        gistID: 457649d47dde9d43cc6876d9c7a63e4ede1059d6
         # The *.json or *.svg filename of the badge data
         filename: cell-peak-calcium-activity-processor-coverage-badge.json
         # The left text of the badge
