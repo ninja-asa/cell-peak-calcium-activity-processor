@@ -26,7 +26,7 @@ def test_from_peaks_with_peaks():
     assert cell_activity.time_to_max_peak == pd.Timestamp("2022-01-03")
     assert cell_activity.value_at_max_peak == 3
 
-def test_to_series():
+def test_to_df():
     cell_activity = CellActivity(
         cell_id="cell1", 
         nr_peaks=3, 
@@ -35,26 +35,26 @@ def test_to_series():
         value_at_first_peak=1, 
         time_to_max_peak=pd.Timestamp("2022-01-01 00:00:10"),
         value_at_max_peak=3)
-    series = cell_activity.to_series()
+    df = cell_activity.to_df()
 
-    assert series.name == "cell1"
-    assert series["nr_peaks"] == 3
-    assert series["is_active"] == True
-    assert series["time_to_first_peak"] == 5.1
-    assert series["value_at_first_peak"] == 1
-    assert series["time_to_max_peak"] == 10
-    assert series["value_at_max_peak"] == 3
+    assert df.index[0] == "cell1"
+    assert df["nr_peaks"][0] == 3
+    assert df["is_active"][0] == True
+    assert df["time_to_first_peak"][0] == 5.1
+    assert df["value_at_first_peak"][0] == 1
+    assert df["time_to_max_peak"][0] == 10
+    assert df["value_at_max_peak"][0] == 3
 
 
 def test_to_series_non_active_cell():
     cell_activity = CellActivity(cell_id="cell1", nr_peaks=0, is_active=False)
-    series = cell_activity.to_series()
+    df = cell_activity.to_df()
 
-    assert series.name == "cell1"
-    assert series["nr_peaks"] == 0
-    assert series["is_active"] == False
+    assert df.index[0] == "cell1"
+    assert df["nr_peaks"][0] == 0
+    assert df["is_active"][0] == False
     # confirm it has nan values
-    assert pd.isna(series["time_to_first_peak"])
-    assert pd.isna(series["value_at_first_peak"])
-    assert pd.isna(series["time_to_max_peak"])
+    assert pd.isna(df["time_to_first_peak"][0])
+    assert pd.isna(df["value_at_first_peak"][0])
+    assert pd.isna(df["time_to_max_peak"][0])
     

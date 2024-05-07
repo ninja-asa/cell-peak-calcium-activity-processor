@@ -51,15 +51,29 @@ class CellActivity:
         if timestamp is None:
             return None
         return timestamp.hour * 3600 + timestamp.minute * 60 + timestamp.second + timestamp.microsecond / 1e6
-    def to_series(self):
-        return pd.Series({
+    
+    def to_df(self):
+        
+        cols = ["time_to_first_peak", "value_at_first_peak", "time_to_max_peak", "value_at_max_peak", "is_active", "nr_peaks"]
+        dtypes_cols = {
+            "time_to_first_peak": float,
+            "value_at_first_peak": float,
+            "time_to_max_peak": float,
+            "value_at_max_peak": float,
+            "is_active": bool,
+            "nr_peaks": int
+        }
+
+        data = {
             "time_to_first_peak": self._get_second_of_timestamp(self.time_to_first_peak),
             "value_at_first_peak": self.value_at_first_peak,
             "time_to_max_peak": self._get_second_of_timestamp(self.time_to_max_peak),
             "value_at_max_peak": self.value_at_max_peak,
-            "is_active": self.is_active,
+            "is_active": int(self.is_active),
             "nr_peaks": self.nr_peaks
-        }, name=self.cell_id)
+        }
+
+        return pd.DataFrame(data, index=[self.cell_id]).astype(dtypes_cols)
     
     def get_greatest_peak(self, peaks: pd.Series):
         return (peaks.idxmax(), peaks.max())
