@@ -1,5 +1,7 @@
 import os
 import logging
+from dotenv import load_dotenv
+load_dotenv()
 
 # load logging level from environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
@@ -8,6 +10,8 @@ LOGGING_CONFIG = {
     "level": log_level,
     "handlers": [logging.StreamHandler(), logging.FileHandler(f"{__name__}.log")]
 }
+# load .env file
+
 
 PEAK_THRESHOLD = os.getenv("PEAK_THRESHOLD", 0.4)
 PEAK_WINDOW = os.getenv("PEAK_WINDOW", 5)

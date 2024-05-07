@@ -37,9 +37,11 @@ def clean_df(df: pd.DataFrame) -> pd.DataFrame:
     # drop any columns with all NaN values
     df = df.dropna(axis=1, how="all")
     # try to convert to numeric all columns
-    df = df.apply(pd.to_numeric, errors='ignore')
-    # drop non numeric column
-    df = df.select_dtypes(include=['number'])
+    for col in df.columns:
+        try:
+            df[col] = pd.to_numeric(df[col])
+        except ValueError:
+            df = df.drop(columns=col)
     return df
 
 def read_from_file(file_path: str) -> pd.DataFrame:

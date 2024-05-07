@@ -10,6 +10,8 @@ from app.config import AppConfig, LOGGING_CONFIG
 
 config = AppConfig()
 logging.basicConfig(**LOGGING_CONFIG)
+logging.info(f"Initialized with the following config{config}")
+
 
 def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.DataFrame = None):
     """

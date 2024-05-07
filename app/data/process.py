@@ -165,7 +165,7 @@ class ActivityProcessor:
         # find boolean columns and count total number of rows, total number of true and % of true
         boolean_features = cell_population_activity_features.select_dtypes(include=[bool])
         nr_true = boolean_features.sum()
-        percent_true = nr_true / total_instances[0] * 100
+        percent_true = nr_true / total_instances.iloc[0] * 100
         
         nr_true.index = nr_true.index.map(lambda x: 'nr_true ' + x)
         percent_true.index = percent_true.index.map(lambda x: 'percentage_true ' + x)

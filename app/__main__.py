@@ -19,9 +19,10 @@ def main(directory_path: str):
     # find excel and csv files in the samples directory
     file_paths = [os.path.join(directory_path, file) for file in os.listdir(directory_path) if file.endswith(".csv") or file.endswith(".xlsx")]
     logging.info(f"Found {len(file_paths)} files in the samples directory")
-    logging.info(file_paths)
+    for file_path in file_paths:
+        logging.info(f"Processing file {file_path}")
     # load logging level from environment variable
-
+    
     # process files in bulk
     result, all_populations_summary = process_files_in_bulk(file_paths, save_to_file=True)
     return result, all_populations_summary
