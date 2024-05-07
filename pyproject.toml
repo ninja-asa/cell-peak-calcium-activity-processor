@@ -16,6 +16,7 @@ plotly = "^5.21.0"
 nbformat = "^5.10.4"
 kaleido = "0.2.1"
 scipy = "^1.13.0"
+python-dotenv = "^0.19.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.2.0"
