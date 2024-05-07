@@ -102,11 +102,11 @@ def test_time_series():
 @pytest.mark.parametrize(
     "n_neighbors, threshold, expected",
     [
-        (3, 2, [3, 4, 3]),
+        (3, 2, [4, 3]),
         (5, 2, [4]),
-        (3, 3, [3, 4, 3]),
+        (3, 3, [4, 3]),
         (5, 4, [4]),
-        (3, None, [3, 4, 3]), # will use average of data, which is 2.1
+        (3, None, [4, 3]), # will use average of data, which is 2.1
     ]
 )
 def test_get_local_maxima(test_time_series, n_neighbors, threshold, expected):
@@ -125,13 +125,13 @@ def test_initialize_summary_df(test_processor):
     result = test_processor._initialize_summary_df(mock_cell_population_activity)
 
     # Assert
-    assert result.columns.tolist() == ['column1', 'column2']
+    assert result.index.tolist() == ['column1', 'column2']
 
 @pytest.mark.parametrize(
     "n_neighbors, threshold, expected",
     [
-        (3, 4, [1, True, pd.Timestamp('2020-01-01 00:00:04'), 4, pd.Timestamp('2020-01-01 00:00:04'), 4]),
-        (5, 3, [1, True, pd.Timestamp('2020-01-01 00:00:04'), 4, pd.Timestamp('2020-01-01 00:00:04'), 4]),
+        (3, 4, [1, True, 4, 4, 4, 4]),
+        (5, 3, [1, True, 4, 4, 4, 4]),
         (3, 5, [0, False, None, None, None, None]), 
     ]
 
@@ -147,13 +147,25 @@ def test_process_cell_activity(test_time_series, n_neighbors, threshold, expecte
     result = test_processor.process_cell_activity(test_time_series)
 
     # Assert
-    assert isinstance(result, pd.Series)
-    assert result['nr_peaks'] == expected[0]
-    assert result['is_active'] == expected[1]
-    assert result['time_to_first_peak'] == expected[2]
-    assert result['value_at_first_peak'] == expected[3]
-    assert result['time_to_max_peak'] == expected[4]
-    assert result['value_at_max_peak'] == expected[5]
+    assert isinstance(result, pd.DataFrame)
+    assert result['nr_peaks'][0] == expected[0]
+    assert result['is_active'][0] == expected[1]
+    if expected[2] is None:
+        assert pd.isna(result['time_to_first_peak'][0])
+    else:
+        assert result['time_to_first_peak'][0] == expected[2]
+    if expected[3] is None:
+        assert pd.isna(result['value_at_first_peak'][0])
+    else:
+        assert result['value_at_first_peak'][0] == expected[3]
+    if expected[4] is None:
+        assert pd.isna(result['time_to_max_peak'][0])
+    else:
+        assert result['time_to_max_peak'][0] == expected[4]
+    if expected[5] is None:
+        assert pd.isna(result['value_at_max_peak'][0])
+    else:
+        assert result['value_at_max_peak'][0] == expected[5]
 
 def test_run(test_processor):
     # Arrange
@@ -169,14 +181,18 @@ def test_run(test_processor):
     # Assert
     assert result.index.tolist() == ['column1', 'column2']
     # sort list of string
+
     expected_columns = ['nr_peaks', 'is_active', 'time_to_first_peak', 'value_at_first_peak', 'time_to_max_peak', 'value_at_max_peak']
-    expected_columns.sort()
-    assert result.columns.tolist() == expected_columns
-
+    for col in expected_columns:
+        assert col in result.columns
     # Assert that the values are as expected
-    assert result.loc['column1'].tolist() == [0, False, None, None, None, None]
-    assert result.loc['column2'].tolist() == [0, False, None, None, None, None]
-
+    assert result['nr_peaks'].tolist() == [0, 0]
+    assert result['is_active'].tolist() == [False, False]
+    assert pd.isna(result['time_to_first_peak']).all()
+    assert pd.isna(result['value_at_first_peak']).all()
+    assert pd.isna(result['time_to_max_peak']).all()
+    assert pd.isna(result['value_at_max_peak']).all()
+    
 def test_summary_population():
     cell_population_activity_features = pd.DataFrame({
         'numeric1': [1, 2, 3],
@@ -194,5 +210,5 @@ def test_summary_population():
     assert summary["mean numeric2"] == 5
     assert summary["nr_true boolean1"] == 2
     assert summary["nr_true boolean2"] == 2
-    assert summary["percentage_true boolean1"] == pytest.approx(2/3*1000)
-    assert summary["percentage_true boolean2"] == pytest.approx(2/3*1000)
+    assert summary["percentage_true boolean1"] == pytest.approx(2/3*100)
+    assert summary["percentage_true boolean2"] == pytest.approx(2/3*100)

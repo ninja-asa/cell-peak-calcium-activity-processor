@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import logging
 import numpy as np
+from scipy.signal import argrelmax
 
 from app.data.population import CellPopulationActivity
 from app.data.cell import CellActivity
@@ -71,13 +72,11 @@ class ActivityProcessor:
         
         summary_df = self._initialize_summary_df(cell_population_activity)
         for column in cell_population_activity.data.columns:
-            cell_activity_series = self.process_cell_activity(cell_population_activity.data[column])
-            summary_df[column] = cell_activity_series
+            cell_activity_row: pd.DataFrame = self.process_cell_activity(cell_population_activity.data[column])
+            summary_df.update(cell_activity_row)
         
         # sort the index alphabetically
         summary_df = summary_df.sort_index()
-
-        summary_df = summary_df.T
         
         return summary_df
 
@@ -91,7 +90,7 @@ class ActivityProcessor:
         Returns:
             pd.DataFrame: The initialized summary DataFrame
         """
-        summary_df = pd.DataFrame(columns=cell_population_activity.data.columns)
+        summary_df = pd.DataFrame(CellActivity("").to_df(), index=cell_population_activity.data.columns)
         return summary_df
     
     def process_cell_activity(self, cell_activity_time_series: pd.Series) :
@@ -102,11 +101,11 @@ class ActivityProcessor:
             cell_activity_time_series (pd.Series): The cell activity time series
 
         Returns:
-            pd.Series: The summary of the cell activity
+            pd.DataFrame: The summary of the cell activity - each column is a feature
         """
         peaks: pd.Series = self.get_local_maxima_per_column(cell_activity_time_series, self.n_neighbors, self.threshold)
         cell_activity: CellActivity = CellActivity.from_peaks(peaks)
-        return cell_activity.to_series()
+        return cell_activity.to_df()
     
     @staticmethod
     def get_local_maxima_per_column(series: pd.Series, n_neighbors: int = 3, threshold: float = None) -> pd.Series:
@@ -126,11 +125,9 @@ class ActivityProcessor:
             raise error
         if threshold is None:
             threshold = series.mean()
-        is_local_maxima = series == series.rolling(n_neighbors, center=True).max()
-        is_local_maxima = is_local_maxima & (series >= threshold)
-        # if there are several consecutive local maxima, keep the first one
-        is_local_maxima = is_local_maxima & ~is_local_maxima.shift(1).fillna(False)
-
+        idx_local_maxima = argrelmax(series.values, order=n_neighbors)[0]
+        is_local_maxima = pd.Series(False, index=series.index)
+        is_local_maxima.iloc[idx_local_maxima] = series.iloc[idx_local_maxima] >= threshold
         return series[is_local_maxima]
     
     @staticmethod
