@@ -27,15 +27,22 @@ def test_from_peaks_with_peaks():
     assert cell_activity.value_at_max_peak == 3
 
 def test_to_series():
-    cell_activity = CellActivity(cell_id="cell1", nr_peaks=3, is_active=True, time_to_first_peak=pd.Timestamp("2022-01-01"), value_at_first_peak=1, time_to_max_peak=pd.Timestamp("2022-01-03"), value_at_max_peak=3)
+    cell_activity = CellActivity(
+        cell_id="cell1", 
+        nr_peaks=3, 
+        is_active=True, 
+        time_to_first_peak=pd.Timestamp("2022-01-01 00:00:05.1"), 
+        value_at_first_peak=1, 
+        time_to_max_peak=pd.Timestamp("2022-01-01 00:00:10"),
+        value_at_max_peak=3)
     series = cell_activity.to_series()
 
     assert series.name == "cell1"
     assert series["nr_peaks"] == 3
     assert series["is_active"] == True
-    assert series["time_to_first_peak"] == pd.Timestamp("2022-01-01")
+    assert series["time_to_first_peak"] == 5.1
     assert series["value_at_first_peak"] == 1
-    assert series["time_to_max_peak"] == pd.Timestamp("2022-01-03")
+    assert series["time_to_max_peak"] == 10
     assert series["value_at_max_peak"] == 3
 
 

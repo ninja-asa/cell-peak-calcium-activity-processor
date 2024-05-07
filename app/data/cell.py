@@ -46,12 +46,16 @@ class CellActivity:
         instance.time_to_max_peak, instance.value_at_max_peak = instance.get_greatest_peak(peaks)
 
         return instance
-    
+    @staticmethod
+    def _get_second_of_timestamp(timestamp: pd.Timestamp):
+        if timestamp is None:
+            return None
+        return timestamp.hour * 3600 + timestamp.minute * 60 + timestamp.second + timestamp.microsecond / 1e6
     def to_series(self):
         return pd.Series({
-            "time_to_first_peak": self.time_to_first_peak.to_pydatetime().timestamp() if self.time_to_first_peak else None,
+            "time_to_first_peak": self._get_second_of_timestamp(self.time_to_first_peak),
             "value_at_first_peak": self.value_at_first_peak,
-            "time_to_max_peak": self.time_to_max_peak.to_pydatetime().timestamp() if self.time_to_max_peak else None,
+            "time_to_max_peak": self._get_second_of_timestamp(self.time_to_max_peak),
             "value_at_max_peak": self.value_at_max_peak,
             "is_active": self.is_active,
             "nr_peaks": self.nr_peaks
