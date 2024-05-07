@@ -263,7 +263,6 @@ def test_drop_rows_by_sample(mock_drop_row_before_sample, test_data_with_datetim
 
 def test_read_df_cell_population_activity(test_data):
     cell_population_activity = CellPopulationActivity(
-        peak_threshold=0.5,
         ignore_peaks_before_criteria="SAMPLES",
         ignore_peaks_before=2,
         time_unit="s"
