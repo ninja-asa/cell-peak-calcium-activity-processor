@@ -14,6 +14,7 @@ class CellPopulationActivity:
     time_unit: str = "s"
     # data attribute is not initialized in the __init__ method
     data: pd.DataFrame = None
+    filters: list = None
     
     def __post_init__(self):
         # check if ignore criteria is either samples or time, if not raise an error
@@ -28,7 +29,31 @@ class CellPopulationActivity:
             logging.error(error)
             raise error
         return
-        
+    
+    def apply_filters(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Remove column in which there is at least one value below or above the specified threshold
+
+        Args:
+            data (pd.DataFrame): The data to be filtered
+
+        Returns:
+            pd.DataFrame: The filtered data
+        """
+        if self.filters is None:
+            return data
+        initial_amount_of_columns = data.shape[1]
+        for threshold, filter_type in self.filters:
+            if filter_type.lower() == "above":
+                data = data.loc[:, (data <= threshold).all()]
+            elif filter_type.lower() == "below":
+                data = data.loc[:, (data >= threshold).all()]
+            else:
+                logging.warning(f"Filter type {filter_type} not recognized. Skipping filter")
+        final_amount_of_columns = data.shape[1]
+        logging.info(f"Filtered data from {initial_amount_of_columns} to {final_amount_of_columns} columns")
+        return data
+    
     def from_df(self,data: pd.DataFrame) -> None:
         """
         Read the data from a pandas DataFrame and performs some data cleaning
@@ -43,6 +68,8 @@ class CellPopulationActivity:
             self.drop_frames_column(data)
             # 
             self.drop_rows(data)
+            # apply filters
+            data = self.apply_filters(data)
         except ValueError as e:
             logging.error(e)
             raise e

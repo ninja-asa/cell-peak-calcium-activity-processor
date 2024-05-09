@@ -37,7 +37,8 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     cell_population_activity = CellPopulationActivity(
         ignore_peaks_before_criteria=config.ignore_peaks_before_criteria,
         ignore_peaks_before=config.ignore_peaks_before,
-        time_unit=config.time_unit
+        time_unit=config.time_unit,
+        filters=config.filters
     )
 
     cell_population_activity.from_df(df)

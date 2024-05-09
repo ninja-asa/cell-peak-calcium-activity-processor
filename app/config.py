@@ -10,8 +10,7 @@ LOGGING_CONFIG = {
     "level": log_level,
     "handlers": [logging.StreamHandler(), logging.FileHandler(f"{__name__}.log")]
 }
-# load .env file
-
+logging.basicConfig(**LOGGING_CONFIG)
 
 PEAK_THRESHOLD = os.getenv("PEAK_THRESHOLD", 0.4)
 PEAK_WINDOW = os.getenv("PEAK_WINDOW", 5)
@@ -19,20 +18,70 @@ TIME_UNIT = os.getenv("TIME_UNIT", "s")
 IGNORE_PEAKS_BEFORE_CRITERIA = os.getenv("IGNORE_PEAKS_BEFORE_CRITERIA", "samples")
 IGNORE_PEAKS_BEFORE = os.getenv("IGNORE_PEAKS_BEFORE", 1)
 OUTPUT_DIRECTORY = os.getenv("OUTPUT_DIRECTORY", "output") 
+FILTER_SETTINGS = os.getenv("FILTER_SETTINGS", "").split(";")
+try:
+    FILTERS = [(float(setting.split(",")[0]), setting.split(",")[1]) for setting in FILTER_SETTINGS if setting]
+except Exception as e:
+    logging.error(f"Error while parsing filters: {e}")
+    FILTERS = []
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 class AppConfig:
+    _supported_time_units = ["s", "ms", "us", "ns"]
+    _supported_ignore_peaks_before_criteria = ["samples", "time"]
+    _supported_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    _supported_filters = ["above", "below"]
+
     def __init__(self) -> None:
-        self._log_level = LOGGING_CONFIG["level"]
+        if not self.check_if_filters_are_valid(filters=FILTERS):
+            # no filters are set
+            self._filters = []
+            logging.warning("No filters are set. Please set filters in the format 'value,type' where type is either 'above' or 'below'")
+            logging.warning("Assuming no filters are set")
+        else:
+            self._filters = FILTERS
+        
+        if not self.check_if_time_unit_is_valid(TIME_UNIT):
+            logging.warning(f"Time unit {self.time_unit} is not supported. Supported time units are {self._supported_time_units}")
+            logging.warning("Assuming time unit is set to 's'")
+            self._time_unit = "s"
+        else:
+            self._time_unit = TIME_UNIT
+        
+        if not self.check_if_ignore_peaks_before_criteria_is_valid(IGNORE_PEAKS_BEFORE_CRITERIA):
+            logging.warning(f"Ignore peaks before criteria {self.ignore_peaks_before_criteria} is not supported. Supported criteria are {self._supported_ignore_peaks_before_criteria}")
+            logging.warning("Assuming ignore peaks before criteria is set to 'samples'")
+            self._ignore_peaks_before_criteria = "samples"
+        else:
+            self._ignore_peaks_before_criteria = IGNORE_PEAKS_BEFORE_CRITERIA
+        if not self.check_if_log_level_is_valid(LOG_LEVEL):
+            logging.warning(f"Log level {self.log_level} is not supported. Supported log levels are {self._supported_log_levels}")
+            logging.warning("Assuming log level is set to 'INFO'")
+            self._log_level = "INFO"
+        else:
+            self._log_level = LOGGING_CONFIG["level"]
         self._peak_threshold = PEAK_THRESHOLD
         self._peak_window = PEAK_WINDOW
-        self._time_unit = TIME_UNIT
-        self._ignore_peaks_before_criteria = IGNORE_PEAKS_BEFORE_CRITERIA
         self._ignore_peaks_before = IGNORE_PEAKS_BEFORE
         self._output_directory = OUTPUT_DIRECTORY
 
+    def check_if_filters_are_valid(self, filters: list) -> bool:
+        are_types_valid = all(isinstance(setting[0], float) for setting in filters)
+        are_values_valid = all(setting[1] in self._supported_filters for setting in filters)
+        return are_types_valid and are_values_valid
+    
+    def check_if_time_unit_is_valid(self, time_unit: str) -> bool:
+        return time_unit in self._supported_time_units
+    
+    def check_if_ignore_peaks_before_criteria_is_valid(self, criteria: str) -> bool:
+        return criteria in self._supported_ignore_peaks_before_criteria
+    
+    def check_if_log_level_is_valid(self, log_level: str) -> bool:
+        return log_level in self._supported_log_levels
+    
     def __repr__(self) -> str:
-        return f"AppConfig(log_level={self.log_level}, threshold={self.threshold}, n_neighbors={self.n_neighbors}, time_unit={self.time_unit}, ignore_peaks_before_criteria={self.ignore_peaks_before_criteria}, ignore_peaks_before={self.ignore_peaks_before}, output_directory={self.output_directory})"
-
+        return f"AppConfig(peak_threshold={self.threshold}, peak_window={self.n_neighbors}, time_unit={self.time_unit}, ignore_peaks_before_criteria={self.ignore_peaks_before_criteria}, ignore_peaks_before={self.ignore_peaks_before}, output_directory={self.output_directory}, filters={self.filters})"
+    
     @property
     def log_level(self) -> str:
         return self._log_level
@@ -61,3 +110,10 @@ class AppConfig:
     def output_directory(self) -> str:
         return self._output_directory
     
+    @property
+    def filters(self) -> list:
+        return self._filters
+    
+if __name__=="__main__":
+    config = AppConfig()
+    logging.info(f"Initialized with the following config{config}")
