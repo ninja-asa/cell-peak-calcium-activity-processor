@@ -25,6 +25,7 @@ The goal with this repository is to support a scientific workflow to:
 - [x] Allow user to set the threshold for peak detection
 - [x] Allow user to exclude first `n` samples or `t` time units from the time series
 - [x] allow processing of multiple files
+- [x] allow user to set conditions to filter out cells
 - [x] export (cell) results per excel file
 - [x] export (population) results in a summary excel file (single file for all processed files)
 - [ ] allow user to edit column names in the excel files
@@ -34,7 +35,7 @@ The goal with this repository is to support a scientific workflow to:
 :exclamation: Have only tested with python 3.12.
 
 ### Usage
-- Clone the repository
+- Clone the repository and open a terminal in the root directory of the repository
 - Create a virtual environment by running `python -m venv myenv`
 - Activate the virtual environment by running `source myenv/bin/activate`
 - Install the dependencies by running `pip install .`

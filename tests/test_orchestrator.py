@@ -1,9 +1,16 @@
+import os
 import pandas as pd
 from pandas.testing import assert_frame_equal, assert_series_equal
 from app.orchestrator.pipeline import main
+from app.config import AppConfig
 
 def test_main_end_to_end():
-    result, all_populations_summary = main()
+    # set environment variables
+    my_test_config = AppConfig(
+        custom_filters=[(0, "below"), (10, "above")],
+    )
+    
+    result, all_populations_summary = main(my_test_config)
     # assert that the function runs without error
     assert isinstance(result, dict)
     assert isinstance(all_populations_summary, pd.DataFrame)
