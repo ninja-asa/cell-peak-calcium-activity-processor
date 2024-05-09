@@ -32,14 +32,19 @@ class AppConfig:
     _supported_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     _supported_filters = ["above", "below"]
 
-    def __init__(self) -> None:
-        if not self.check_if_filters_are_valid(filters=FILTERS):
+    def __init__(self, custom_filters = None) -> None:
+        
+        if custom_filters is not None:
+            filters = custom_filters
+        else: 
+            filters = FILTERS
+        if not self.check_if_filters_are_valid(filters=filters):
             # no filters are set
             self._filters = []
             logging.warning("No filters are set. Please set filters in the format 'value,type' where type is either 'above' or 'below'")
             logging.warning("Assuming no filters are set")
         else:
-            self._filters = FILTERS
+            self._filters = filters
         
         if not self.check_if_time_unit_is_valid(TIME_UNIT):
             logging.warning(f"Time unit {self.time_unit} is not supported. Supported time units are {self._supported_time_units}")
@@ -66,7 +71,8 @@ class AppConfig:
         self._output_directory = OUTPUT_DIRECTORY
 
     def check_if_filters_are_valid(self, filters: list) -> bool:
-        are_types_valid = all(isinstance(setting[0], float) for setting in filters)
+        # check if first tuple element is a number (int, float)
+        are_types_valid = all(isinstance(setting[0], (int, float)) for setting in filters)
         are_values_valid = all(setting[1] in self._supported_filters for setting in filters)
         return are_types_valid and are_values_valid
     

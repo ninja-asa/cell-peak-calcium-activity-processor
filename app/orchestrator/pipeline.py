@@ -2,18 +2,18 @@
 import pandas as pd
 import logging
 import os
+from app import config
 from app.data import population
 from app.data.population import CellPopulationActivity
 from app.data.process import ActivityProcessor
 from app.file.tables import read_from_file, write_to_file, create_new_file_from_input_filepath, get_directory_of_filepath
 from app.config import AppConfig, LOGGING_CONFIG
 
-config = AppConfig()
+default_config = AppConfig()
 logging.basicConfig(**LOGGING_CONFIG)
-logging.info(f"Initialized with the following config{config}")
 
 
-def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.DataFrame = None):
+def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.DataFrame = None, config: AppConfig = AppConfig()):
     """
     Get cell activity features from a file or dataframe
 
@@ -52,7 +52,7 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     return cell_population_activity_features, summary_population
 
 
-def process_files_in_bulk(file_paths: list, save_to_file: bool = False):
+def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: AppConfig = None):
     """
     Process a list of files in bulk
 
@@ -65,7 +65,7 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False):
     result = {}
     for file_path in file_paths:
         try:
-            cell_population_activity_features, summary_population = get_cell_activity_features_from_file_or_df(file_path)
+            cell_population_activity_features, summary_population = get_cell_activity_features_from_file_or_df(file_path, config=config)
             summary_population.name = file_path
             result[file_path] = (cell_population_activity_features, summary_population)
         except Exception as e:
@@ -107,10 +107,10 @@ def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False):
 
 def write_population_data_to_files(result, all_populations_summary):
     # check if app config directory exists
-    if not os.path.exists(config.output_directory):
-        os.makedirs(config.output_directory)
+    if not os.path.exists(default_config.output_directory):
+        os.makedirs(default_config.output_directory)
     datetime_now = pd.Timestamp.now().strftime("%Y%m%d%H%M%S")
-    output_dir = os.path.join(config.output_directory, datetime_now)
+    output_dir = os.path.join(default_config.output_directory, datetime_now)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     logging.info(f"Writing population data to {output_dir}")
@@ -129,7 +129,11 @@ def write_population_data_to_files(result, all_populations_summary):
     logging.info("Finished writing population data")
     return
 
-def main():
+def main(my_own_config: AppConfig = None):
+    if my_own_config:
+        config = my_own_config
+    else:
+        config = default_config
     current_module_dir = os.path.dirname(os.path.abspath(__file__))
     samples_dir = os.path.join(current_module_dir, "..", "..", "samples")
     # find excel and csv files in the samples directory
@@ -137,7 +141,7 @@ def main():
     logging.info(f"Found {len(file_paths)} files in the samples directory")
 
     # process the files in bulk
-    result, all_populations_summary = process_files_in_bulk(file_paths, save_to_file=True)
+    result, all_populations_summary = process_files_in_bulk(file_paths, save_to_file=True, config=config)
     logging.info(f"Processed {len(result)} files")
     return result, all_populations_summary
 
