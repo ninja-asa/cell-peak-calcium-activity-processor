@@ -14,8 +14,8 @@ def test_read_df_from_csv():
     result = read_from_file(file_path)
 
     # Assert
-    assert result.shape == (21, 4)
-    assert result.columns.tolist() == ['FRAMES', 'Time (sec)', 'cell 1', 'cell 2']
+    assert result.shape == (21, 6)
+    assert result.columns.tolist() == ['FRAMES', 'Time (sec)', 'cell 1', 'cell 2', 'cell 3', 'cell 4']
 
 def test_read_df_from_excel():
     # Arrange
