@@ -34,7 +34,7 @@ The goal with this repository is to support a scientific workflow to:
 :exclamation: Have only tested with python 3.12.
 
 ### Usage
-- Clone the repository
+- Clone the repository and open a terminal in the root directory of the repository
 - Create a virtual environment by running `python -m venv myenv`
 - Activate the virtual environment by running `source myenv/bin/activate`
 - Install the dependencies by running `pip install .`
