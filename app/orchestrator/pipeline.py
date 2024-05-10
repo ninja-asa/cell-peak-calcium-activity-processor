@@ -2,8 +2,6 @@
 import pandas as pd
 import logging
 import os
-from app import config
-from app.data import population
 from app.data.population import CellPopulationActivity
 from app.data.process import ActivityProcessor
 from app.file.tables import read_from_file, write_to_file, create_new_file_from_input_filepath, get_directory_of_filepath
@@ -52,7 +50,7 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     return cell_population_activity_features, summary_population
 
 
-def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: AppConfig = None):
+def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: AppConfig = default_config):
     """
     Process a list of files in bulk
 
