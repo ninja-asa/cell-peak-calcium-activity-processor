@@ -2,6 +2,7 @@
 import pandas as pd
 import logging
 import os
+import json
 from app.data.population import CellPopulationActivity
 from app.data.process import ActivityProcessor
 from app.file.tables import read_from_file, write_to_file, create_new_file_from_input_filepath, get_directory_of_filepath
@@ -73,7 +74,6 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: 
     if save_to_file:
         logging.info("Writing population data to files")
         write_population_data_to_files(result, all_populations_summary)
-
     return result, all_populations_summary
 
 
@@ -125,6 +125,11 @@ def write_population_data_to_files(result, all_populations_summary):
     populations_output_dir = os.path.join(output_dir, "all_populations_summary.csv")
     write_to_file(all_populations_summary.T, populations_output_dir)
     logging.info("Finished writing population data")
+        # write dict of config to json file	
+    config_dict = default_config.__dict__
+    with open(os.path.join(output_dir, "config.json"), "w") as f:
+        json.dump(config_dict, f)
+
     return
 
 def main(my_own_config: AppConfig = None):
