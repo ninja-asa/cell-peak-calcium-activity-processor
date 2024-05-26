@@ -3,6 +3,7 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 
+GITHUB_REPOSITORY_URL="https://github.com/ninja-asa/cell-peak-calcium-activity-processor"
 # load logging level from environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
 LOGGING_CONFIG = {
@@ -32,12 +33,20 @@ class AppConfig:
     _supported_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
     _supported_filters = ["above", "below"]
 
-    def __init__(self, custom_filters = None) -> None:
+    def __init__(self, custom_filters = None, time_unit = None, 
+                    ignore_peaks_criteria = None,
+                    ignore_peaks_before = None,
+                    output_directory = None,
+                    peak_threshold = None,
+                    peak_window = None,
+                    log_level = None
+                 ) -> None:
         
         if custom_filters is not None:
             filters = custom_filters
         else: 
             filters = FILTERS
+                    
         if not self.check_if_filters_are_valid(filters=filters):
             # no filters are set
             self._filters = []
@@ -45,30 +54,41 @@ class AppConfig:
             logging.warning("Assuming no filters are set")
         else:
             self._filters = filters
+            
+        if time_unit is None:
+            time_unit = TIME_UNIT     
         
-        if not self.check_if_time_unit_is_valid(TIME_UNIT):
+        if not self.check_if_time_unit_is_valid(time_unit):
             logging.warning(f"Time unit {self.time_unit} is not supported. Supported time units are {self._supported_time_units}")
             logging.warning("Assuming time unit is set to 's'")
             self._time_unit = "s"
         else:
-            self._time_unit = TIME_UNIT
+            self._time_unit = time_unit
         
-        if not self.check_if_ignore_peaks_before_criteria_is_valid(IGNORE_PEAKS_BEFORE_CRITERIA):
+        if ignore_peaks_criteria is None:
+            ignore_peaks_criteria = IGNORE_PEAKS_BEFORE_CRITERIA
+        
+        if not self.check_if_ignore_peaks_before_criteria_is_valid(ignore_peaks_criteria):
             logging.warning(f"Ignore peaks before criteria {self.ignore_peaks_before_criteria} is not supported. Supported criteria are {self._supported_ignore_peaks_before_criteria}")
             logging.warning("Assuming ignore peaks before criteria is set to 'samples'")
             self._ignore_peaks_before_criteria = "samples"
         else:
-            self._ignore_peaks_before_criteria = IGNORE_PEAKS_BEFORE_CRITERIA
-        if not self.check_if_log_level_is_valid(LOG_LEVEL):
+            self._ignore_peaks_before_criteria = ignore_peaks_criteria
+            
+        if log_level is None:
+            log_level = LOG_LEVEL
+        
+        if not self.check_if_log_level_is_valid(log_level):
             logging.warning(f"Log level {self.log_level} is not supported. Supported log levels are {self._supported_log_levels}")
             logging.warning("Assuming log level is set to 'INFO'")
             self._log_level = "INFO"
         else:
             self._log_level = LOGGING_CONFIG["level"]
-        self._peak_threshold = PEAK_THRESHOLD
-        self._peak_window = PEAK_WINDOW
-        self._ignore_peaks_before = IGNORE_PEAKS_BEFORE
-        self._output_directory = OUTPUT_DIRECTORY
+        
+        self._peak_threshold = peak_threshold if peak_threshold is not None else PEAK_THRESHOLD
+        self._peak_window = peak_window if peak_window is not None else PEAK_WINDOW
+        self._ignore_peaks_before = ignore_peaks_before if ignore_peaks_before is not None else IGNORE_PEAKS_BEFORE
+        self._output_directory = output_directory if output_directory is not None else OUTPUT_DIRECTORY
 
     def check_if_filters_are_valid(self, filters: list) -> bool:
         # check if first tuple element is a number (int, float)
@@ -119,7 +139,16 @@ class AppConfig:
     @property
     def filters(self) -> list:
         return self._filters
-    
+
+logging.info("Initializing AppConfig")
+logging.info(f"Peak threshold: {PEAK_THRESHOLD}")
+logging.info(f"Peak window: {PEAK_WINDOW}")
+logging.info(f"Time unit: {TIME_UNIT}")
+logging.info(f"Ignore peaks before criteria: {IGNORE_PEAKS_BEFORE_CRITERIA}")
+logging.info(f"Ignore peaks before: {IGNORE_PEAKS_BEFORE}")
+logging.info(f"Output directory: {OUTPUT_DIRECTORY}")
+logging.info(f"Filters: {FILTERS}")
+
 if __name__=="__main__":
     config = AppConfig()
     logging.info(f"Initialized with the following config{config}")
