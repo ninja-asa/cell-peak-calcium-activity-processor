@@ -16,6 +16,7 @@ def process_files(directory_path, app_config: AppConfig):
         error = ValueError("Please enter a valid directory path")
         logging.error(error)
         raise error
+    input_directory = os.path.normpath(input_directory)
     files = get_files_in_directory(input_directory)
     results, all_populations_summary = process_files_in_bulk(files, save_to_file=True, config=app_config)
     return results, all_populations_summary
