@@ -59,6 +59,6 @@ st.session_state.uploaded_file = st.sidebar.file_uploader(
     "Choose a file", type=["csv", "xlsx"],
     on_change=uploaded_file_callback_on_change, key="new_file")
 # add url to a demo sample file
-st.sidebar.markdown("Sample Data can be found [here](https://github.com/ninja-asa/cell-peak-calcium-activity-processor/blob/main/samples/sample.csv)")
+st.sidebar.markdown(f"Sample Data can be found [here]({GITHUB_REPOSITORY_URL}/blob/main/samples/sample.csv)")
 
 uploaded_file_callback_on_change()
