@@ -3,13 +3,15 @@ import pandas as pd
 import os
 import logging
 import datetime
+from io import BytesIO
+
 
 # load logging level from environment variable
 log_level = os.getenv("LOG_LEVEL", "INFO")
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(module)s - %(lineno)d - %(message)s', level=log_level, handlers=[logging.StreamHandler(), logging.FileHandler(f"{__name__}.log")])
 
 
-def read_file_using_function(file_path: str, read_function: callable) -> pd.DataFrame:
+def read_file_using_function(file_path: str, read_function: callable, raw_bytes: bytes = None) -> pd.DataFrame:
     """
     Read a file using a read function
 
@@ -20,6 +22,9 @@ def read_file_using_function(file_path: str, read_function: callable) -> pd.Data
     Returns:
         pd.DataFrame: The read DataFrame
     """
+    if raw_bytes is not None:
+        return read_function(BytesIO(raw_bytes), index_col=None, header=None)
+    
     return read_function(file_path, index_col=None, header=None)
 
 def clean_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -44,7 +49,7 @@ def clean_df(df: pd.DataFrame) -> pd.DataFrame:
             df = df.drop(columns=col)
     return df
 
-def read_from_file(file_path: str) -> pd.DataFrame:
+def read_from_file(file_path: str, raw_bytes: bytes = None) -> pd.DataFrame:
     """
     Read a pandas DataFrame from a file
 
@@ -55,14 +60,14 @@ def read_from_file(file_path: str) -> pd.DataFrame:
         pd.DataFrame: The read DataFrame
     """
     # check if file exists
-    if not os.path.exists(file_path):
+    if raw_bytes is None and not os.path.exists(file_path):
         e = FileNotFoundError(f"File not found: {file_path}")
         logging.error(e)
         raise e
     if file_path.endswith(".csv"):
-        df = read_file_using_function(file_path, pd.read_csv)
+        df = read_file_using_function(file_path, pd.read_csv, raw_bytes=raw_bytes)
     elif file_path.endswith(".xlsx"):
-        df = read_file_using_function(file_path, pd.read_excel)
+        df = read_file_using_function(file_path, pd.read_excel, raw_bytes=raw_bytes)
     else:
         e = ValueError(f"File format not supported: {file_path}")
         logging.error(e)
