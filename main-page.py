@@ -6,8 +6,6 @@ import os
 import logging
 from datetime import datetime
 
-from traitlets import All
-
 from app.config import AppConfig, LOGGING_CONFIG, GITHUB_REPOSITORY_URL
 from app.orchestrator.pipeline import process_dataframes_in_bulk
 from app.file.tables import read_from_file
