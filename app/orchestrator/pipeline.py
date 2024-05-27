@@ -77,7 +77,7 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: 
     return result, all_populations_summary
 
 
-def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False):
+def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False, config: AppConfig = default_config):
     """
     Process a list of dataframes in bulk
 
@@ -90,15 +90,16 @@ def process_dataframes_in_bulk(dataframes: list, save_to_file: bool = False):
     result = {}
     for idx, df in enumerate(dataframes):
         try:
-            cell_population_activity_features, summary_population = get_cell_activity_features_from_file_or_df(df)
+            cell_population_activity_features, summary_population = get_cell_activity_features_from_file_or_df(df=df, config=config)
             summary_population.name = str(idx)
             result[summary_population.name] = (cell_population_activity_features, summary_population)
         except Exception as e:
             logging.error(e)
-
+    logging.info(f"Processed {len(result)} files")
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})
         
     if save_to_file:
+        logging.info("Writing population data to files")
         write_population_data_to_files(result, all_populations_summary)
 
     return result, all_populations_summary

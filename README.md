@@ -2,7 +2,7 @@
 [![Run Tests](https://github.com/ninja-asa/cell-peak-calcium-activity-processor/actions/workflows/unit-tests.yml/badge.svg?event=pull_request)](https://github.com/ninja-asa/cell-peak-calcium-activity-processor/actions/workflows/unit-tests.yml)
 ![Coverage Badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/ninja-asa/7320bcb9e0428ed09bd965d928767f82/raw/cc121fdd7d0838075814e6735d8599829c01be01/cell-peak-calcium-activity-processor-coverage-badge.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
- 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://cell-peak-calcium-activity-process.streamlit.app/) 
 
 The goal with this repository is to support a scientific workflow to:
 
@@ -21,25 +21,41 @@ The goal with this repository is to support a scientific workflow to:
     - [x] % of active cells
     - [x] average number of peaks per cell
     - [x] average amplitude of peaks
-- [ ] plot the time series for each cell as a heatmap (x-axis: time, y-axis: cell number, color: amplitude)
+- [x] plot the time series for each cell
 - [x] Allow user to set the threshold for peak detection
 - [x] Allow user to exclude first `n` samples or `t` time units from the time series
 - [x] allow processing of multiple files
 - [x] allow user to set conditions to filter out cells
 - [x] export (cell) results per excel file
 - [x] export (population) results in a summary excel file (single file for all processed files)
-- [ ] allow user to edit column names in the excel files
-- [ ] be a web application
+- [ ] allow user to edit column names in the excel files ()
+- [x] be a web application
 
 ## Getting Started
 :exclamation: Have only tested with python 3.12.
 
-### Usage
-- Clone the repository and open a terminal in the root directory of the repository
-- Create a virtual environment by running `python -m venv myenv`
-- Activate the virtual environment by running `source myenv/bin/activate`
-- Install the dependencies by running `pip install .`
-- Create a `.env` file in the root directory with the content of `example.env` adjusted to your needs
+### Usage via Deployed Web App
+- Access streamlit app: [https://cell-peak-calcium-activity-process.streamlit.app/](https://cell-peak-calcium-activity-process.streamlit.app/) 
+- To plot the time series of a data file (to device better parametrization), select page `debug-page`
+> Check section [Supported File Format](#supported-file-format) for detailed information
+
+![Loading Animation of Debug Page](./assets/debug-page.gif)
+
+- To process several data files, access `main-page`, upload target data files and perform the desired configuration.
+> To better understand the existing parameters, check section [Configuration of Pipeline](#configuration-of-pipeline).
+
+![Loading Animation of Main Page](./assets/main-page.gif)
+
+### Usage via Command Line Interface
+#### Setup
+-   Clone the repository and open a terminal in the root directory of the repository
+-   Create a virtual environment by running `python -m venv myenv`
+-   Activate the virtual environment by running `source myenv/bin/activate`
+-   Install the dependencies by running `pip install .`
+-   Create a `.env` file in the root directory with the content of `example.env` adjusted to your needs
+
+### Process
+- Ensure that python virtual environment is active. If not, run `source myenv/bin/activate` 
 - Generate the results by running the pipeline:
 ```bash
 python app <path_to_directory_with_files> 
@@ -48,6 +64,8 @@ for example
 ```bash
 python app samples/
 ```
+- Results will be saved in the specified `output_directory` in the `.env` file, uniquely identied with the date and time of generation. Check section [Pipeline Results](#pipeline-results).
+
 
 ### Supported File Format
 - The files should be in `.csv` format or `.excel`
@@ -61,10 +79,32 @@ python app samples/
 - Rows with missing values are dropped
 - Column with non numeric values are dropped
 
+
+### Configuration of Pipeline
+
+- `PEAK_THRESHOLD`: This is the threshold for peak detection. A local maximum will only be considered a peak if above this threshold.
+
+- `PEAK_WINDOW`: This is the window size for peak detection. The algorithm will consider this many samples on either side of a point to determine if it is a peak. 
+
+- `TIME_UNIT`: This is the unit of time used in the data, either `s` or `ms`.
+
+- `IGNORE_PEAKS_BEFORE_CRITERIA`: This determines the criteria for ignoring early peaks in the data, either `time` or `samples`.
+
+- `IGNORE_PEAKS_BEFORE`: This is the number of samples or time (depending on `IGNORE_PEAKS_BEFORE_CRITERIA`) to ignore at the start of the data. The default value is `1`.
+
+- `OUTPUT_DIRECTORY`: This is the directory where the output files will be saved. The default value is `"output"`.
+
+- `LOGGING_LEVEL`: This determines the level of logging. The default value is `"INFO"` which means it will log information messages, as well as warning and error messages.
+
+- `FILTER_SETTINGS`: This is used to remove columns with values below or above the specified values. The format is `value,direction;value,direction`. For example, `0.0,below;10,above` will remove columns with values below `0.0` or above `10`. Remove this line if not needed.
+
 ### Pipeline Results
-- The results are stored in the specified output directory in `.env`
-- If the output directory does not exist, it is created.
-- The results are stored in a directory with the current timestamp
+- Via CLI:
+    - The results are stored in the specified output directory in `.env`
+    - If the output directory does not exist, it is created.
+    - The results are stored in a directory with the current timestamp
+- Via Web App:
+    - Web App allows to download a `.zip` file named with the current timestamp 
 - The results are stored in `.csv` and `.excel` format - according to the file format of the input files.
 - The results are stored in the following structure (below is an example from using `samples/` files):
 ```
