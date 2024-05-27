@@ -1,6 +1,10 @@
+from altair import to_json
+from dotenv import load_dotenv
+
 import os
 import logging
-from dotenv import load_dotenv
+import json
+
 load_dotenv()
 
 GITHUB_REPOSITORY_URL="https://github.com/ninja-asa/cell-peak-calcium-activity-processor"
@@ -139,6 +143,13 @@ class AppConfig:
     @property
     def filters(self) -> list:
         return self._filters
+    
+    def to_dict(self) -> dict:
+        return self.__dict__
+    
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+                        
 
 logging.info("Initializing AppConfig")
 logging.info(f"Peak threshold: {PEAK_THRESHOLD}")
