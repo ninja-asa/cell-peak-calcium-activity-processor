@@ -25,11 +25,15 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     """
     if df is None:
         try:
+            logging.info(f"Reading file {file_path}")
             df = read_from_file(file_path)
         except FileNotFoundError as e:
             logging.error(e)
             raise e
         except ValueError as e:
+            logging.error(e)
+            raise e
+        except Exception as e:
             logging.error(e)
             raise e
     
@@ -47,7 +51,7 @@ def get_cell_activity_features_from_file_or_df(file_path: str = None, df: pd.Dat
     )
 
     cell_population_activity_features: pd.DataFrame = activity_processor.run(cell_population_activity)
-    summary_population: pd.Series = activity_processor.summary_of_population(cell_population_activity_features)
+    summary_population: pd.Series = activity_processor.summary_of_population(cell_population_activity_features, exclude_zeros_in_numeric_columns=True)
     return cell_population_activity_features, summary_population
 
 
@@ -64,10 +68,12 @@ def process_files_in_bulk(file_paths: list, save_to_file: bool = False, config: 
     result = {}
     for file_path in file_paths:
         try:
+            logging.info(f"Processing file {file_path}")
             cell_population_activity_features, summary_population = get_cell_activity_features_from_file_or_df(file_path, config=config)
             summary_population.name = file_path
             result[file_path] = (cell_population_activity_features, summary_population)
         except Exception as e:
+            logging.error(f"Error processing file {file_path}")
             logging.error(e)
     logging.info(f"Processed {len(result)} files")
     all_populations_summary = pd.DataFrame({key: value[1] for key, value in result.items()})

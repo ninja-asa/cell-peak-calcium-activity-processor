@@ -131,7 +131,7 @@ class ActivityProcessor:
         return series[is_local_maxima]
     
     @staticmethod
-    def summary_of_population(cell_population_activity_features: pd.DataFrame):
+    def summary_of_population(cell_population_activity_features: pd.DataFrame, exclude_zeros_in_numeric_columns: bool = False):
         """
         Get mean, nr of instances and % number of each column in the cell population activity features
 
@@ -150,8 +150,12 @@ class ActivityProcessor:
         # for column which are numeric get the mean
         # find numeric columns and determine average
         numeric_features = cell_population_activity_features.select_dtypes(include=[np.number])
-
-        mean_features:pd.Series = numeric_features.mean()
+        # if exclude_zeros_in_numeric_columns is True, then replace 0 with NaN
+        if exclude_zeros_in_numeric_columns:
+            numeric_features = numeric_features.replace(0, np.nan)
+            
+        mean_features:pd.Series = numeric_features.mean(skipna=True)
+        
         # update the index to include "mean " before to each index value
         mean_features.index = mean_features.index.map(lambda x: 'mean ' + x)
 
