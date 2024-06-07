@@ -1,0 +1,1 @@
+{"_filters": [[100.0, "above"], [0.0, "below"]], "_time_unit": "s", "_ignore_peaks_before_criteria": "samples", "_log_level": "INFO", "_peak_threshold": 0.4, "_peak_window": 5, "_ignore_peaks_before": 1, "_output_directory": "output"}
