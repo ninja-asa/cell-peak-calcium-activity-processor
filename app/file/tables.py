@@ -27,7 +27,7 @@ def read_file_using_function(file_path: str, read_function: callable, raw_bytes:
     
     return read_function(file_path, index_col=None, header=None)
 
-def clean_df(df: pd.DataFrame) -> pd.DataFrame:
+def post_clean_df(df: pd.DataFrame) -> pd.DataFrame:
     """
     Clean a DataFrame by dropping rows and columns with all NaN values
 
@@ -37,16 +37,15 @@ def clean_df(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The cleaned DataFrame
     """
-    # drop any rows with all NaN values
-    df = df.dropna(how="all")
-    # drop any columns with all NaN values
-    df = df.dropna(axis=1, how="all")
     # try to convert to numeric all columns
     for col in df.columns:
         try:
             df[col] = pd.to_numeric(df[col])
         except ValueError:
             df = df.drop(columns=col)
+        except TypeError as e:
+            logging.error(e)
+            raise e
     return df
 
 def read_from_file(file_path: str, raw_bytes: bytes = None) -> pd.DataFrame:
@@ -64,19 +63,44 @@ def read_from_file(file_path: str, raw_bytes: bytes = None) -> pd.DataFrame:
         e = FileNotFoundError(f"File not found: {file_path}")
         logging.error(e)
         raise e
-    if file_path.endswith(".csv"):
-        df = read_file_using_function(file_path, pd.read_csv, raw_bytes=raw_bytes)
-    elif file_path.endswith(".xlsx"):
-        df = read_file_using_function(file_path, pd.read_excel, raw_bytes=raw_bytes)
-    else:
-        e = ValueError(f"File format not supported: {file_path}")
+    try:
+        if file_path.endswith(".csv"):
+            df = read_file_using_function(file_path, pd.read_csv, raw_bytes=raw_bytes)
+        elif file_path.endswith(".xlsx"):
+            df = read_file_using_function(file_path, pd.read_excel, raw_bytes=raw_bytes)
+        else:
+            e = ValueError(f"File format not supported: {file_path}")
+            logging.error(e)
+            raise e
+    except Exception as e:
+        logging.error(f"Could not read file {file_path}")
         logging.error(e)
         raise e
-    # find and set the header
-    df = find_and_set_header(df)
-    df = clean_df(df)
-    return df
     
+    # find and set the header
+    try:
+        df = pre_clean_df(df)
+        df = find_and_set_header(df)
+        df = post_clean_df(df)
+    except Exception as e:
+        logging.error(f"Could not clean DataFrame from file {file_path}")
+        logging.error(e)
+        raise e
+    
+    if df.empty:
+        e = ValueError(f"DataFrame is empty: {file_path}")
+        logging.error(e)
+        raise e
+    return df
+   
+   
+def pre_clean_df(df: pd.DataFrame) -> pd.DataFrame:
+    # drop columns which are only NaN
+    df = df.dropna(axis=1, how="all")
+    # drop rows which are only NaN
+    df = df.dropna(axis=0, how="all")
+    return df
+        
 def find_and_set_header(df: pd.DataFrame) -> pd.DataFrame:
     """
     Find the header of the DataFrame and set it as the header
@@ -87,9 +111,10 @@ def find_and_set_header(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The DataFrame with the header set
     """
-    # find index of row with 2 strings
     
-    header_index = df.map(lambda x: isinstance(x, str)).sum(axis=1).idxmax()
+    # find rows where "time" can be found (partially or fully), skipping the numeric values
+    header_index = df.apply(lambda x: x.str.contains("time", case=False)).any(axis=1).idxmax() 
+    
     # set the header
     df.columns = df.loc[header_index]
     # drop the header row
@@ -141,3 +166,8 @@ def get_directory_of_filepath(file_path: str) -> str:
         str: The directory of the file path
     """
     return os.path.dirname(file_path)
+
+if __name__=="__main__":
+    filename = "samples/no.peaks.csv"
+    df = read_from_file(filename)
+    print(df.head())
