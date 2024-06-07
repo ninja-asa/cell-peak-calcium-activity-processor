@@ -2,6 +2,7 @@ import pytest
 import pandas as pd
 from unittest.mock import create_autospec, patch
 from app.data.process import ActivityProcessor, CellPopulationActivity, CellActivity
+import numpy as np
 
 @pytest.fixture()
 def test_processor():
@@ -209,3 +210,15 @@ def test_summary_population():
     assert summary_T["nr_true boolean2"] == 2
     assert summary_T["percentage_true boolean1"] == pytest.approx(2/3*100)
     assert summary_T["percentage_true boolean2"] == pytest.approx(2/3*100)
+
+
+def test_summary_population_handle_nan() :
+    cell_population_activity_features = pd.DataFrame({
+        'numeric1': [0, np.nan, np.nan],
+        'numeric2': [4, 5, 6]
+    })
+    summary = ActivityProcessor.summary_of_population(cell_population_activity_features, exclude_zeros_in_numeric_columns=True)
+    summary_T = summary.transpose()
+    # check if mean numeric is nan (pandas)
+    assert pd.isna(summary_T["mean numeric1"])
+    assert summary_T["mean numeric2"] == 5
